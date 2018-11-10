@@ -1,5 +1,7 @@
 package of.media.hz.musicFragment;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.ComponentName;
@@ -19,6 +21,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.SeekBar;
@@ -64,7 +72,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
     private int currentPlayIndex=-1;//当前的播放下标
     private boolean isPersonTouch=false;//判断是否为人为滑动进度条
     private boolean isResetBind=false;//是否重新绑定
-    private List<Music> musicList=null;
+    private  ObjectAnimator roateAnimation;
     @SuppressLint("HandlerLeak")
     private Handler mhandler=new Handler(){
         @Override
@@ -118,8 +126,25 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                                 }
 
                                 if(musicController.musicIsPlaying()){
+                                    if(roateAnimation==null){
+                                        roateAnimation=ObjectAnimator.ofFloat(musicAlbum,"rotation",0f,360f);
+                                        roateAnimation.setInterpolator(new LinearInterpolator());
+                                        roateAnimation.setRepeatMode(ValueAnimator.RESTART);
+                                        roateAnimation.setRepeatCount(-1);//不停旋转
+                                        roateAnimation.setDuration(36000);
+                                            roateAnimation.start();
+                                    }else {
+                                            roateAnimation.resume();//继续旋转
+                                    }
+
+
                                     playImageView.setImageResource(R.drawable.play_imageview);
                                 }else{
+
+                                    if(roateAnimation!=null){
+                                        roateAnimation.pause();//暂停图片的旋转动画
+                                    }
+
                                     playImageView.setImageResource(R.drawable.pause_imageview);
                                 }
 
@@ -172,6 +197,8 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
   },100,100);
 
     }
+
+
 
 
     //播放音乐

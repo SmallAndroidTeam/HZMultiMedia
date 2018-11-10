@@ -52,7 +52,7 @@ interface MusicController {
 
   boolean setPlayMode(int type);//设置播放模式 type={0 顺序模式 ,1 列表模式 ,2 单曲模式 ,3 随机模式}
 
-  boolean currentMusicListIsEmpty();//当前的音乐列表是否为空
+  int getCurrentMusicListSize();//获取当前的音乐列表大小
 
   void setMusicPlayProgressListener(MusicPlayProgressListener musicPlayProgressListener);//设置播放进度监听
 

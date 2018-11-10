@@ -31,6 +31,7 @@ import com.of.music.songListInformation.MusicIconLoader;
 import com.of.music.songListInformation.MusicPlayProgressListener;
 
 import java.io.File;
+import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -62,6 +63,8 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
     private final static int UPDATE_PROGRESS=1;//更新进度条
     private int currentPlayIndex=-1;//当前的播放下标
     private boolean isPersonTouch=false;//判断是否为人为滑动进度条
+    private boolean isResetBind=false;//是否重新绑定
+    private List<Music> musicList=null;
     @SuppressLint("HandlerLeak")
     private Handler mhandler=new Handler(){
         @Override
@@ -256,11 +259,21 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             musicController= MusicController.Stub.asInterface(iBinder);
-            Log.i(TAG, "onServiceConnected:连接成功 ");
             try {
                 //设置死亡代理,目的是防止断开连接
                 musicController.asBinder().linkToDeath(deathRecipient,0);
                 musicController.setMusicPlayProgressListener(musicPlayProgressListener);//添加播放进度监听
+
+                //如果重新绑定服务
+                //(服务主动关闭的过程：打开music,再打开HZMultiMedia应用，点击播放按钮，然后关闭前台服务，再关闭music应用，那么服务就会关闭了)
+                if(isResetBind){
+                    Log.i("ha1111", "onServiceConnected: "+musicController.getCurrentMusicListSize());
+                    if(musicController.getCurrentMusicListSize()==0){//当前的播放列表为空（是由于服务主动关闭导致的，此时设置当前的播放列表为本地列表，且播放下标为1)
+                        initData();
+                    }
+                    isResetBind=false;
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -269,7 +282,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-
+            Log.i("ha1111", "onServiceDisconnected: ");
             try {
                 if(musicController!=null)
                 musicController.cancelMusicPlayProgressListener(musicPlayProgressListener);//取消播放进度监听
@@ -290,10 +303,13 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
             if(musicController==null){
                 return;
             }
+            isResetBind=true;//重新绑定字段
             musicController.asBinder().unlinkToDeath(deathRecipient,0);
             musicController=null;
             //重新绑定
+            Log.i("ha1111", "binderDied: 重新绑定");
             bindService();
+
         }
     };
 
@@ -373,8 +389,8 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                             pauseMusic();
                             playImageView.setImageResource(R.drawable.pause_imageview);
                         }else{
-                            if(musicController.currentMusicListIsEmpty()){//判断当前音乐列表是否为空
-                            //    OneToast.showMessage(getContext(),"当前无歌曲");
+                            if(musicController.getCurrentMusicListSize()==0){//判断当前音乐列表是否为空
+                            OneToast.showMessage(getContext(),"当前无歌曲");
                             }else{
                                 staticMusic();
                                 playImageView.setImageResource(R.drawable.play_imageview);
@@ -389,9 +405,9 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
             case R.id.prevImageView:
                 if(musicController!=null){
                     try {
-                        if(musicController.currentMusicListIsEmpty()){//判断当前音乐列表是否为空
+                        if(musicController.getCurrentMusicListSize()==0){//判断当前音乐列表是否为空
                             Log.i(TAG, "onClick: 22");
-                           // OneToast.showMessage(getContext(),"当前无歌曲");
+                         OneToast.showMessage(getContext(),"当前无歌曲");
                         }else{
                             prevMusic();
                         }
@@ -403,9 +419,9 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
             case R.id.nextImageView:
                 if(musicController!=null){
                     try {
-                        if(musicController.currentMusicListIsEmpty()){//判断当前音乐列表是否为空
+                        if(musicController.getCurrentMusicListSize()==0){//判断当前音乐列表是否为空
                             Log.i(TAG, "onClick: 11");
-                          //  OneToast.showMessage(getContext(),"当前无歌曲");
+                           OneToast.showMessage(getContext(),"当前无歌曲");
                         }else{
                             nextMusic();
                         }

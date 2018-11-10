@@ -54,6 +54,12 @@ interface MusicController {
 
   int getCurrentMusicListSize();//获取当前的音乐列表大小
 
+  List<String> getCurrentPlayMusicAllLyric();//获取当前播放歌曲的所有歌词
+
+   String getCurrentPlayMusicOneLyric();// 获取当前播放歌曲正在播放的那一句歌词
+
+   int getCurrentPlayMusicOneLyricIndex();//获取当前播放歌曲正在播放的那一句歌词在所有歌词的下标
+
   void setMusicPlayProgressListener(MusicPlayProgressListener musicPlayProgressListener);//设置播放进度监听
 
   void cancelMusicPlayProgressListener(MusicPlayProgressListener musicPlayProgressListener);//取消播放进度监听

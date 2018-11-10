@@ -65,7 +65,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
     private SeekBar musicSeekbar;
 
     private MusicController musicController;
-    private final static String TAG="hz111";
+    private final static String TAG="hz11111";
     private TextView musicArtist;
     private final static int INIT_UI=0;//初始化播放Ui界面
     private final static int UPDATE_PROGRESS=1;//更新进度条
@@ -102,6 +102,8 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                             musicDuration.setText(Format.changeToTime(musicController.of_getDuration()));//设置总的播放时间
                             musicSeekbar.setMax(musicController.of_getDuration());//设置进度条的最大值
                             currentPlayIndex=musicController.getCurrentPlayIndex();//获取当前的播放下标
+                            Log.i(TAG, "歌词行数： "+musicController.getCurrentPlayMusicAllLyric().size()+"  ，正在唱的歌词//  "+
+                                    musicController.getCurrentPlayMusicOneLyric()+"   //正在唱的歌词的下标："+musicController.getCurrentPlayMusicOneLyricIndex());
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -147,7 +149,8 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
 
                                     playImageView.setImageResource(R.drawable.pause_imageview);
                                 }
-
+                                Log.i(TAG, "歌词行数： "+musicController.getCurrentPlayMusicAllLyric().size()+"  ，正在唱的歌词//  "+
+                                        musicController.getCurrentPlayMusicOneLyric()+"   //正在唱的歌词的下标："+musicController.getCurrentPlayMusicOneLyricIndex());
                             }
                         } catch (RemoteException e) {
                             e.printStackTrace();

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_vertical"
+    >
+     <Button
+     android:id="@+id/localRadioButton"
+     android:layout_width="wrap_content"
+     android:layout_height="100px"
+     android:text="收音机"
+     android:textSize="30px"/>
+    <Button
+        android:id="@+id/onlineRadioButton"
+        android:layout_width="wrap_content"
+        android:layout_height="100px"
+        android:text="在线电台"
+        android:textSize="30px"/>
+    <Button
+        android:id="@+id/localMusicButton"
+        android:layout_width="wrap_content"
+        android:layout_height="100px"
+        android:text="本地音乐"
+        android:textSize="30px"/>
+    <Button
+        android:id="@+id/bluetoothMusicButton"
+        android:layout_width="wrap_content"
+        android:layout_height="100px"
+        android:text="蓝牙音乐"
+        android:textSize="30px"/>
+    <Button
+        android:id="@+id/usbMusicButton"
+        android:layout_width="wrap_content"
+        android:layout_height="100px"
+        android:text="U盘音乐"
+        android:textSize="30px"/>
+
+    <Button
+        android:id="@+id/onlineMusicButton"
+        android:layout_width="wrap_content"
+        android:layout_height="100px"
+        android:text="在线音乐"
+        android:textSize="30px"/>
+</LinearLayout>
+    <FrameLayout
+        android:id="@+id/musicFrameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</LinearLayout>

@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">HZMultiMedia</string>
+    <string name="music">Music</string>
+    <string name="video">Video</string>
+    <string name="gallery">Gallery</string>
+</resources>

@@ -44,7 +44,6 @@
         android:orientation="vertical"
         >
         <of.media.hz.ui.RoundImageView
-
             android:id="@+id/musicAlbum"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -54,6 +53,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/musicLyric"
+            android:divider="@null"
+
             />
     </LinearLayout>
 

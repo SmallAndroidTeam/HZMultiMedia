@@ -1,5 +1,6 @@
 package of.media.hz.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,7 @@ import of.media.hz.R;
 public class LryicAdapter  extends BaseAdapter{
 
     private List<String> mLrcs = new ArrayList<String>(); // 存放歌词
-    private  int index=0;//显示歌词的下标
+    private  int index=-1;//显示歌词的下标
 
 
     public List<String> getmLrcs() {
@@ -42,7 +43,7 @@ public class LryicAdapter  extends BaseAdapter{
 
     @Override
     public int getCount() {
-        return 0;
+        return mLrcs.size();
     }
 
     @Override
@@ -67,11 +68,18 @@ public class LryicAdapter  extends BaseAdapter{
             viewHolder= (ViewHolder) view.getTag();
         }
         viewHolder.oneLineLyric.setText(mLrcs.get(i));
+        if(index==-1){
+            viewHolder.oneLineLyric.setTextColor(viewGroup.getContext().getResources().getColor(R.color.textNoSelect));
+        }else if(i==index){
+            viewHolder.oneLineLyric.setTextColor(viewGroup.getContext().getResources().getColor(R.color.textSelect));
+        }else{
+            viewHolder.oneLineLyric.setTextColor(viewGroup.getContext().getResources().getColor(R.color.textNoSelect));
+        }
+
         return view;
     }
      class  ViewHolder{
         TextView oneLineLyric;
-
          public ViewHolder(TextView oneLineLyric) {
              this.oneLineLyric = oneLineLyric;
          }

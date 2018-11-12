@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -29,6 +30,7 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.SeekBar;
@@ -38,15 +40,18 @@ import com.bumptech.glide.Glide;
 import com.of.music.songListInformation.Music;
 import com.of.music.songListInformation.MusicController;
 import com.of.music.songListInformation.MusicIconLoader;
+import com.of.music.songListInformation.MusicListChangeListener;
 import com.of.music.songListInformation.MusicPlayProgressListener;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import of.media.hz.R;
+import of.media.hz.adapter.LryicAdapter;
 import of.media.hz.toast.OneToast;
 import of.media.hz.ui.LrcView;
 import of.media.hz.until.Format;
@@ -71,10 +76,14 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
     private TextView musicArtist;
     private final static int INIT_UI=0;//初始化播放Ui界面
     private final static int UPDATE_PROGRESS=1;//更新进度条
+    private final static int UPDATE_LRYIC=2;//更新歌词进度
     private int currentPlayIndex=-1;//当前的播放下标
     private boolean isPersonTouch=false;//判断是否为人为滑动进度条
     private boolean isResetBind=false;//是否重新绑定
+    private  final List<String> noLrcs=new ArrayList<>();//无歌词
     private  ObjectAnimator roateAnimation;
+    private LryicAdapter lryicAdapter;
+
     @SuppressLint("HandlerLeak")
     private Handler mhandler=new Handler(){
         @Override
@@ -104,9 +113,13 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                             musicDuration.setText(Format.changeToTime(musicController.of_getDuration()));//设置总的播放时间
                             musicSeekbar.setMax(musicController.of_getDuration());//设置进度条的最大值
                             currentPlayIndex=musicController.of_getCurrentPlayIndex();//获取当前的播放下标
+                            if(musicController.of_getCurrentPlayMusicAllLyric().size()!=0){
+                                lryicAdapter.setmLrcs(musicController.of_getCurrentPlayMusicAllLyric());
+                                lryicAdapter.setIndex(musicController.of_getCurrentPlayMusicOneLyricIndex());
+                                lryicAdapter.notifyDataSetChanged();
+                            }
                             Log.i(TAG, "歌词行数： "+musicController.of_getCurrentPlayMusicAllLyric().size()+"  ，正在唱的歌词//  "+
                                     musicController.of_getCurrentPlayMusicOneLyric()+"   //正在唱的歌词的下标："+musicController.of_getCurrentPlayMusicOneLyricIndex());
-                            
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -152,23 +165,29 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
 
                                     playImageView.setImageResource(R.drawable.pause_imageview);
                                 }
-                                Log.i(TAG, "歌词行数： "+musicController.of_getCurrentPlayMusicAllLyric().size()+"  ，正在唱的歌词//  "+
-                                        musicController.of_getCurrentPlayMusicOneLyric()+"   //正在唱的歌词的下标："+musicController.of_getCurrentPlayMusicOneLyricIndex());
+
                             }
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
 
                     break;
+                case UPDATE_LRYIC://更新歌词
+                    lryicAdapter.notifyDataSetChanged();
+                    break;
                     default:
                         break;
             }
         }
     };
+
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.local_music_fragment_item, container,false);
+        noLrcs.add("暂无歌词");
         initView(view);
         initEvents();
         bindService();
@@ -201,6 +220,37 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
           }
       }
   },100,100);
+
+  new Timer().schedule(new TimerTask() {//更新歌词进度
+      @Override
+      public void run() {
+        try {
+            if(musicController!=null) {
+                if (musicController.of_getCurrentPlayMusicAllLyric().size() != 0) {
+                    if(lryicAdapter.getmLrcs().containsAll(musicController.of_getCurrentPlayMusicAllLyric()))
+                    lryicAdapter.setmLrcs(musicController.of_getCurrentPlayMusicAllLyric());
+                    if (lryicAdapter.getIndex() != musicController.of_getCurrentPlayMusicOneLyricIndex()) {
+                        lryicAdapter.setIndex(musicController.of_getCurrentPlayMusicOneLyricIndex());
+                        mhandler.sendEmptyMessage(UPDATE_LRYIC);
+                    }
+                }else{
+                    lryicAdapter.setmLrcs(noLrcs);
+                    mhandler.sendEmptyMessage(UPDATE_LRYIC);
+                }
+
+
+                Log.i(TAG, "歌词行数： " + musicController.of_getCurrentPlayMusicAllLyric().size() + "  ，正在唱的歌词//  " +
+                        musicController.of_getCurrentPlayMusicOneLyric() + "   //正在唱的歌词的下标：" + musicController.of_getCurrentPlayMusicOneLyricIndex());
+            }else{
+                lryicAdapter.setmLrcs(noLrcs);
+                mhandler.sendEmptyMessage(UPDATE_LRYIC);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+      }
+  },0,100);
 
     }
 
@@ -245,7 +295,6 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
     private void prevMusic(){
         if(musicController!=null){
             try {
-
                 musicController.of_prevMusic();
                 playImageView.setImageResource(R.drawable.play_imageview);
                 Music music=musicController.of_getPlayMusicInfo();//得到当前下标的音乐信息
@@ -288,6 +337,13 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
           mhandler.obtainMessage(UPDATE_PROGRESS,progress).sendToTarget();//更新进度条
         }
     };
+
+    private MusicListChangeListener musicListChangeListener=new MusicListChangeListener.Stub() {//音乐列表改变监听
+        @Override
+        public void musicListChangeListener(boolean result) throws RemoteException {
+            Log.i("hz11111111", "musicListChangeListener: "+result);
+        }
+    };
     private ServiceConnection serviceConnection= new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -296,6 +352,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                 //设置死亡代理,目的是防止断开连接
                 musicController.asBinder().linkToDeath(deathRecipient,0);
                 musicController.of_setMusicPlayProgressListener(musicPlayProgressListener);//添加播放进度监听
+                musicController.of_setMusicListChangeListener(musicListChangeListener);//添加音乐列表变化监听
 
                 //如果重新绑定服务
                 //(服务主动关闭的过程：打开music,再打开HZMultiMedia应用，点击播放按钮，然后关闭前台服务，再关闭music应用，那么服务就会关闭了)
@@ -318,7 +375,10 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
             Log.i("ha1111", "onServiceDisconnected: ");
             try {
                 if(musicController!=null)
-                musicController.of_cancelMusicPlayProgressListener(musicPlayProgressListener);//取消播放进度监听
+                {  musicController.of_cancelMusicPlayProgressListener(musicPlayProgressListener);//取消播放进度监听
+                    musicController.of_cancelMusicListChangeListener(musicListChangeListener);//取消音乐列表变化的监听
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -352,6 +412,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
 
         if(musicController!=null&&musicPlayProgressListener.asBinder().isBinderAlive()) {
             try {
+                musicController.of_cancelMusicListChangeListener(musicListChangeListener);//取消音乐列表变化的监听
                 musicController.of_cancelMusicPlayProgressListener(musicPlayProgressListener);//取消播放进度监听
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -371,6 +432,9 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
         musicCurrentPosition = view.findViewById(R.id.musicCurrentPosition);
         musicDuration = view.findViewById(R.id.musicDuration);
         musicSeekbar = view.findViewById(R.id.musicSeekbar);
+        lryicAdapter = new LryicAdapter();
+        lryicAdapter.setmLrcs(noLrcs);
+        musicLyric.setAdapter(lryicAdapter);
     }
 
     private void initEvents() {
@@ -408,14 +472,15 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                 musicAlbum.setVisibility(View.VISIBLE);
             }
         });
+
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.musicAlbum:
-                musicLyric.setVisibility(View.VISIBLE);
-                musicAlbum.setVisibility(View.GONE);
+                    musicLyric.setVisibility(View.VISIBLE);
+                    musicAlbum.setVisibility(View.GONE);
                 break;
             case R.id.playImageView:
                 if(musicController!=null){

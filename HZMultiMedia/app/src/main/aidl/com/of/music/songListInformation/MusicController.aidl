@@ -3,6 +3,7 @@ package com.of.music.songListInformation;
 
 import com.of.music.songListInformation.Music;
 import com.of.music.songListInformation.MusicPlayProgressListener;
+import com.of.music.songListInformation.MusicListChangeListener;
 // Declare any non-default types here with import statements
 interface MusicController {
     /**
@@ -63,5 +64,7 @@ interface MusicController {
 
   void of_cancelMusicPlayProgressListener(MusicPlayProgressListener musicPlayProgressListener);//取消播放进度监听
 
+    void of_setMusicListChangeListener(MusicListChangeListener musicListChangeListener);//设置音乐列表变化监听
 
+    void of_cancelMusicListChangeListener(MusicListChangeListener musicListChangeListener);//取消音乐列表变化监听
 }

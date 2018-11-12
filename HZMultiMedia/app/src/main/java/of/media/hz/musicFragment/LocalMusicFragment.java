@@ -27,7 +27,9 @@ import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -56,7 +58,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
 
     private TextView musicTitle;
     private ImageView musicAlbum;
-    private LrcView musicLyric;
+    private ListView musicLyric;
     private ImageView prevImageView;
     private ImageView playImageView;
     private ImageView nextImageView;
@@ -101,9 +103,10 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                             musicCurrentPosition.setText(Format.changeToTime(musicController.of_getCurrentPosition()));//设置开始的进度
                             musicDuration.setText(Format.changeToTime(musicController.of_getDuration()));//设置总的播放时间
                             musicSeekbar.setMax(musicController.of_getDuration());//设置进度条的最大值
-                            currentPlayIndex=musicController.getCurrentPlayIndex();//获取当前的播放下标
-                            Log.i(TAG, "歌词行数： "+musicController.getCurrentPlayMusicAllLyric().size()+"  ，正在唱的歌词//  "+
-                                    musicController.getCurrentPlayMusicOneLyric()+"   //正在唱的歌词的下标："+musicController.getCurrentPlayMusicOneLyricIndex());
+                            currentPlayIndex=musicController.of_getCurrentPlayIndex();//获取当前的播放下标
+                            Log.i(TAG, "歌词行数： "+musicController.of_getCurrentPlayMusicAllLyric().size()+"  ，正在唱的歌词//  "+
+                                    musicController.of_getCurrentPlayMusicOneLyric()+"   //正在唱的歌词的下标："+musicController.of_getCurrentPlayMusicOneLyricIndex());
+                            
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -116,8 +119,8 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                     musicCurrentPosition.setText(Format.changeToTime((Integer) msg.obj));//设置播放的时间
                         try {
                             if(musicController!=null) {
-                                if (musicController.getCurrentPlayIndex() != currentPlayIndex){//如果播放下标改变，更新播放界面的信息
-                                    Music music1=musicController.getPlayMusicInfo();//得到当前下标的音乐信息
+                                if (musicController.of_getCurrentPlayIndex() != currentPlayIndex){//如果播放下标改变，更新播放界面的信息
+                                    Music music1=musicController.of_getPlayMusicInfo();//得到当前下标的音乐信息
                                     if(music1!=null){
                                         mhandler.obtainMessage(INIT_UI,music1).sendToTarget();
                                     }
@@ -127,7 +130,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                                     musicDuration.setText(Format.changeToTime(musicController.of_getDuration()));//设置总的播放时间
                                 }
 
-                                if(musicController.musicIsPlaying()){
+                                if(musicController.of_musicIsPlaying()){
                                     if(roateAnimation==null){
                                         roateAnimation=ObjectAnimator.ofFloat(musicAlbum,"rotation",0f,360f);
                                         roateAnimation.setInterpolator(new LinearInterpolator());
@@ -149,8 +152,8 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
 
                                     playImageView.setImageResource(R.drawable.pause_imageview);
                                 }
-                                Log.i(TAG, "歌词行数： "+musicController.getCurrentPlayMusicAllLyric().size()+"  ，正在唱的歌词//  "+
-                                        musicController.getCurrentPlayMusicOneLyric()+"   //正在唱的歌词的下标："+musicController.getCurrentPlayMusicOneLyricIndex());
+                                Log.i(TAG, "歌词行数： "+musicController.of_getCurrentPlayMusicAllLyric().size()+"  ，正在唱的歌词//  "+
+                                        musicController.of_getCurrentPlayMusicOneLyric()+"   //正在唱的歌词的下标："+musicController.of_getCurrentPlayMusicOneLyricIndex());
                             }
                         } catch (RemoteException e) {
                             e.printStackTrace();
@@ -183,11 +186,11 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
       public void run() {
           if(musicController!=null){
               try {
-                  musicController.setCurrentMusicList(musicController.getLocalMusicList());//设置当前的播放列为本地列表
-                  musicController.setCurrentPlayIndex(0);//设置当前的音乐播放下标
-                  musicController.setPlayMode(0);//设置当前的播放模式为顺序播放
-                  musicController.initMusicService();//初始化服务
-                  Music music=musicController.getPlayMusicInfo();//得到当前下标的音乐信息
+                  musicController.of_setCurrentMusicList(musicController.of_getLocalMusicList());//设置当前的播放列为本地列表
+                  musicController.of_setCurrentPlayIndex(0);//设置当前的音乐播放下标
+                  musicController.of_setPlayMode(0);//设置当前的播放模式为顺序播放
+                  musicController.of_initMusicService();//初始化服务
+                  Music music=musicController.of_getPlayMusicInfo();//得到当前下标的音乐信息
                   if(music!=null){
                      mhandler.obtainMessage(INIT_UI,music).sendToTarget();
                   }
@@ -208,7 +211,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
     private void staticMusic(){
         if(musicController!=null){
             try {
-                musicController.startCurrentPlayIndexMusic();
+                musicController.of_startCurrentPlayIndexMusic();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -219,7 +222,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
     private void  pauseMusic(){
         if(musicController!=null){
             try {
-                musicController.pauseCurrentPlayIndexMusic();
+                musicController.of_pauseCurrentPlayIndexMusic();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -231,7 +234,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
     private void setPlayMode(int type){
         if(musicController!=null){
             try {
-                musicController.setPlayMode(type);
+                musicController.of_setPlayMode(type);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -245,7 +248,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
 
                 musicController.of_prevMusic();
                 playImageView.setImageResource(R.drawable.play_imageview);
-                Music music=musicController.getPlayMusicInfo();//得到当前下标的音乐信息
+                Music music=musicController.of_getPlayMusicInfo();//得到当前下标的音乐信息
                 if(music!=null){
                     mhandler.obtainMessage(INIT_UI,music).sendToTarget();
                 }
@@ -262,7 +265,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
             try {
                 musicController.of_nextMusic();
                 playImageView.setImageResource(R.drawable.play_imageview);
-                Music music=musicController.getPlayMusicInfo();//得到当前下标的音乐信息
+                Music music=musicController.of_getPlayMusicInfo();//得到当前下标的音乐信息
                 if(music!=null){
                     mhandler.obtainMessage(INIT_UI,music).sendToTarget();
                 }
@@ -292,13 +295,13 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
             try {
                 //设置死亡代理,目的是防止断开连接
                 musicController.asBinder().linkToDeath(deathRecipient,0);
-                musicController.setMusicPlayProgressListener(musicPlayProgressListener);//添加播放进度监听
+                musicController.of_setMusicPlayProgressListener(musicPlayProgressListener);//添加播放进度监听
 
                 //如果重新绑定服务
                 //(服务主动关闭的过程：打开music,再打开HZMultiMedia应用，点击播放按钮，然后关闭前台服务，再关闭music应用，那么服务就会关闭了)
                 if(isResetBind){
-                    Log.i("ha1111", "onServiceConnected: "+musicController.getCurrentMusicListSize());
-                    if(musicController.getCurrentMusicListSize()==0){//当前的播放列表为空（是由于服务主动关闭导致的，此时设置当前的播放列表为本地列表，且播放下标为1)
+                    Log.i("ha1111", "onServiceConnected: "+musicController.of_getCurrentMusicListSize());
+                    if(musicController.of_getCurrentMusicListSize()==0){//当前的播放列表为空（是由于服务主动关闭导致的，此时设置当前的播放列表为本地列表，且播放下标为1)
                         initData();
                     }
                     isResetBind=false;
@@ -315,7 +318,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
             Log.i("ha1111", "onServiceDisconnected: ");
             try {
                 if(musicController!=null)
-                musicController.cancelMusicPlayProgressListener(musicPlayProgressListener);//取消播放进度监听
+                musicController.of_cancelMusicPlayProgressListener(musicPlayProgressListener);//取消播放进度监听
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -349,7 +352,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
 
         if(musicController!=null&&musicPlayProgressListener.asBinder().isBinderAlive()) {
             try {
-                musicController.cancelMusicPlayProgressListener(musicPlayProgressListener);//取消播放进度监听
+                musicController.of_cancelMusicPlayProgressListener(musicPlayProgressListener);//取消播放进度监听
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -372,7 +375,6 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
 
     private void initEvents() {
         musicAlbum.setOnClickListener(this);
-        musicLyric.setOnClickListener(this);
         playImageView.setOnClickListener(this);
         prevImageView.setOnClickListener(this);
         nextImageView.setOnClickListener(this);
@@ -399,6 +401,13 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                 isPersonTouch=false;
             }
         });
+        musicLyric.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                musicLyric.setVisibility(View.GONE);
+                musicAlbum.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     @Override
@@ -408,18 +417,14 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                 musicLyric.setVisibility(View.VISIBLE);
                 musicAlbum.setVisibility(View.GONE);
                 break;
-            case R.id.musicLyric:
-                musicLyric.setVisibility(View.GONE);
-                musicAlbum.setVisibility(View.VISIBLE);
-                break;
             case R.id.playImageView:
                 if(musicController!=null){
                     try {
-                        if(musicController.musicIsPlaying()){
+                        if(musicController.of_musicIsPlaying()){
                             pauseMusic();
                             playImageView.setImageResource(R.drawable.pause_imageview);
                         }else{
-                            if(musicController.getCurrentMusicListSize()==0){//判断当前音乐列表是否为空
+                            if(musicController.of_getCurrentMusicListSize()==0){//判断当前音乐列表是否为空
                             OneToast.showMessage(getContext(),"当前无歌曲");
                             }else{
                                 staticMusic();
@@ -431,11 +436,12 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                         e.printStackTrace();
                     }
                 }
+
                 break;
             case R.id.prevImageView:
                 if(musicController!=null){
                     try {
-                        if(musicController.getCurrentMusicListSize()==0){//判断当前音乐列表是否为空
+                        if(musicController.of_getCurrentMusicListSize()==0){//判断当前音乐列表是否为空
                             Log.i(TAG, "onClick: 22");
                          OneToast.showMessage(getContext(),"当前无歌曲");
                         }else{
@@ -449,7 +455,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
             case R.id.nextImageView:
                 if(musicController!=null){
                     try {
-                        if(musicController.getCurrentMusicListSize()==0){//判断当前音乐列表是否为空
+                        if(musicController.of_getCurrentMusicListSize()==0){//判断当前音乐列表是否为空
                             Log.i(TAG, "onClick: 11");
                            OneToast.showMessage(getContext(),"当前无歌曲");
                         }else{

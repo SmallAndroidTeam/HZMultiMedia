@@ -49,16 +49,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/mp1"/>
-        <of.media.hz.ui.LrcView
+        <ListView
             android:visibility="gone"
-            xmlns:lrc="http://schemas.android.com/apk/res/of.media.hz"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/musicLyric"
-            lrc:normalTextColor="@color/textSelect"
-            lrc:currentTextColor="@color/textNoSelect"
-            lrc:dividerHeight="20px"
-            lrc:rows="3"
             />
     </LinearLayout>
 

@@ -75,7 +75,6 @@ public class LryicAdapter  extends BaseAdapter{
         }else{
             viewHolder.oneLineLyric.setTextColor(viewGroup.getContext().getResources().getColor(R.color.textNoSelect));
         }
-
         return view;
     }
      class  ViewHolder{

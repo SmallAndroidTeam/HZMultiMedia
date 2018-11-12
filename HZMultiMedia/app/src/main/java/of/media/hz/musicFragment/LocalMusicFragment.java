@@ -174,6 +174,10 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                     break;
                 case UPDATE_LRYIC://更新歌词
                     lryicAdapter.notifyDataSetChanged();
+                    if(msg.obj!=null){
+                        int line= (int) msg.obj;
+                        musicLyric.smoothScrollToPositionFromTop(line,120,500);//滑动到position  距离top的偏移量  滑动所用的时间
+                    }
                     break;
                     default:
                         break;
@@ -231,18 +235,20 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                     lryicAdapter.setmLrcs(musicController.of_getCurrentPlayMusicAllLyric());
                     if (lryicAdapter.getIndex() != musicController.of_getCurrentPlayMusicOneLyricIndex()) {
                         lryicAdapter.setIndex(musicController.of_getCurrentPlayMusicOneLyricIndex());
-                        mhandler.sendEmptyMessage(UPDATE_LRYIC);
+
+                        mhandler.obtainMessage(UPDATE_LRYIC,musicController.of_getCurrentPlayMusicOneLyricIndex()).sendToTarget();
                     }
-                }else{
+                }else{//当前无歌词
+                    lryicAdapter.setIndex(-1);
                     lryicAdapter.setmLrcs(noLrcs);
                     mhandler.sendEmptyMessage(UPDATE_LRYIC);
                 }
-
 
                 Log.i(TAG, "歌词行数： " + musicController.of_getCurrentPlayMusicAllLyric().size() + "  ，正在唱的歌词//  " +
                         musicController.of_getCurrentPlayMusicOneLyric() + "   //正在唱的歌词的下标：" + musicController.of_getCurrentPlayMusicOneLyricIndex());
             }else{
                 lryicAdapter.setmLrcs(noLrcs);
+                lryicAdapter.setIndex(-1);
                 mhandler.sendEmptyMessage(UPDATE_LRYIC);
             }
         }catch (Exception e){

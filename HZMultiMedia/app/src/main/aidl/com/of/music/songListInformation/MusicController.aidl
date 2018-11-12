@@ -17,7 +17,7 @@ interface MusicController {
 //     最后就可以调用startCurrentPlayIndexMusic播放当前音乐下标的歌曲
   List<Music> of_getLocalMusicList();//获取本地的音乐列表
 
-   List<Music> of_getCurrentMusicList();//获取当期的播放列表
+   List<Music> of_getCurrentMusicList();//获取当前的播放列表
   void of_setCurrentMusicList(inout List<Music> list);//设置当前的播放列表
 
   boolean of_setCurrentPlayIndex(int position);//设置当前的播放下标

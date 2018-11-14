@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="65dp"
+    android:background="#6b5ee2"
+   >
+    <ImageView
+        android:scaleType="centerCrop"
+        android:layout_width="65dp"
+        android:layout_height="match_parent"
+        android:id="@+id/widget_image"
+        android:src="@drawable/mp1"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentLeft="true"
+        />
+    <TextView
+        android:id="@+id/widget_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_toRightOf="@id/widget_image"
+        android:layout_toLeftOf="@+id/audio_stop"
+        android:text="音乐"
+        android:textSize="13sp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textColor="@android:color/white"/>
+     <ImageButton
+         android:id="@+id/audio_stop"
+         android:layout_width="20dp"
+         android:layout_height="20dp"
+         android:layout_margin="3dp"
+         android:background="@drawable/notification_close"
+         android:layout_alignParentRight="true"
+         android:layout_alignParentTop="true"
+         />
+    <LinearLayout
+        android:id="@+id/widget_control"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/widget_image"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/widget_pre"
+            android:src="@drawable/widget_pre_selector"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:layout_width="36dp"
+            android:layout_height="36dp" />
+        <ImageView
+            android:id="@+id/widget_play"
+            android:src="@drawable/widget_play_selector"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:layout_width="42dp"
+            android:layout_height="40dp" />
+        <ImageView
+            android:id="@+id/widget_next"
+            android:src="@drawable/widget_next_selector"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:layout_width="36dp"
+            android:layout_height="36dp" />
+    </LinearLayout>
+
+
+</RelativeLayout>

@@ -3,4 +3,6 @@
     <string name="music">Music</string>
     <string name="video">Video</string>
     <string name="gallery">Gallery</string>
+
+    <string name="unknown">未知</string>
 </resources>

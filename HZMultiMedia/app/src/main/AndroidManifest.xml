@@ -26,6 +26,18 @@
             android:screenOrientation="landscape">
 
         </activity>
+
+        <service
+            android:name=".services.MusicAidlService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":remote">
+            <intent-filter>
+                <action android:name="com.android.oflim.action" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

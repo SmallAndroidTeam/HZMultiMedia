@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center_vertical"
     android:padding="15px">
     <of.media.hz.ui.AlwaysMarqueeTextView
         android:layout_gravity="center_horizontal"
@@ -38,8 +39,8 @@
         android:textColor="@android:color/white"/>
     <LinearLayout
         android:layout_marginTop="20px"
-        android:layout_width="300px"
-        android:layout_height="300px"
+        android:layout_width="290px"
+        android:layout_height="290px"
         android:layout_gravity="center_horizontal"
         android:orientation="vertical"
         >
@@ -54,8 +55,17 @@
             android:layout_height="match_parent"
             android:id="@+id/musicLyric"
             android:divider="@null"
-
+            android:scrollbars="none"
             />
+        <!--<TextView-->
+            <!--android:id="@+id/noLyricTip"-->
+            <!--android:visibility="gone"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:gravity="center"-->
+            <!--android:textSize="30px"-->
+            <!--android:textColor="@color/textNoSelect"-->
+            <!--android:text="@string/noLyric"/>-->
     </LinearLayout>
 
     <LinearLayout
@@ -66,16 +76,22 @@
         android:gravity="center"
        >
         <ImageView
+            android:id="@+id/addLikeImage"
+            android:layout_width="60px"
+            android:layout_height="60px"
+            android:clickable="true"
+            android:src="@drawable/like_image"/>
+        <ImageView
             android:id="@+id/prevImageView"
             android:layout_width="60px"
             android:layout_height="60px"
+            android:layout_marginLeft="55px"
+            android:layout_marginRight="55px"
             android:clickable="true"
             android:src="@drawable/prev_music_imageview_selector"
             />
         <ImageView
             android:id="@+id/playImageView"
-            android:layout_marginLeft="140px"
-            android:layout_marginRight="140px"
             android:clickable="true"
             android:layout_width="95px"
             android:layout_height="95px"
@@ -86,16 +102,23 @@
             android:clickable="true"
             android:layout_width="60px"
             android:layout_height="60px"
+            android:layout_marginLeft="55px"
+            android:layout_marginRight="55px"
             android:src="@drawable/next_music_imageview_selector"
             />
+        <ImageView
+            android:id="@+id/playModel"
+            android:layout_width="60px"
+            android:layout_height="60px"
+            android:src="@drawable/list_play"/>
     </LinearLayout>
 
     <RelativeLayout
         android:layout_marginTop="20px"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="120px"
-        android:paddingRight="120px"
+        android:paddingLeft="60px"
+        android:paddingRight="60px"
         >
         <TextView
             android:id="@+id/musicCurrentPosition"

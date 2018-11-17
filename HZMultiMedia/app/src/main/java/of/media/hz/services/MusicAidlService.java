@@ -105,21 +105,16 @@ public final class MusicAidlService extends Service {
                     }catch (Exception e){
                         e.printStackTrace();
                     }
-
                     break;
                 default:
                     break;
             }
-
         }
-
     };
     private final BroadcastReceiver mIntentReceiver=new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
        String processName=getProcessName();
-
        //判断进程名
        if(!TextUtils.isEmpty(processName)&&processName.contentEquals(getPackageName()+":remote"))
        {
@@ -599,11 +594,13 @@ public final class MusicAidlService extends Service {
         { new Thread(new Runnable() {
             @Override
             public void run() {
-                ForegroundIsExist=true;
-                startForeground(NotificationId,getmNotification());
+             Notification notification=getmNotification();
+                 if(notification!=null){
+                     startForeground(NotificationId,notification);
+                     ForegroundIsExist=true;
+                 }
             }
         }).start();
-
         }
     }
 
@@ -852,7 +849,7 @@ public final class MusicAidlService extends Service {
                 packageName=packagesForUid[0];
             }
 
-               if(TextUtils.isEmpty(packageName)||!"of.media.hz".contentEquals(packageName)){
+               if(TextUtils.isEmpty(packageName)||!"com.ofilm.android.hozonlauncher".contentEquals(packageName)){
                 return  false;
                }
 
@@ -882,9 +879,9 @@ public final class MusicAidlService extends Service {
             }
         }
 
-        if(playingMusicIndex==-1)
+        if(!isSatisfyingPlayConditions())
         {
-            OneToast.showMessage(MusicAidlService.this, "暂无歌曲");
+           // OneToast.showMessage(MusicAidlService.this, "暂无歌曲");
             return;
         }
         //widget创建或者刷新第一步都要执行这动作
@@ -981,30 +978,38 @@ public final class MusicAidlService extends Service {
 
 
     //初始前台服务
-    private void initNotification(){
-        String widget_title =musicList.get(playingMusicIndex).getTitle();
-        widgetRemoteViews.setTextViewText(R.id.widget_content, widget_title);//设置歌曲名
-        // widgetRemoteViews.setProgressBar(R.id.widget_progress, mediaPlayer.getDuration(), mediaPlayer.getCurrentPosition(), false);
+    private boolean initNotification(){
+        if(!isSatisfyingPlayConditions())
+        {
+            return false;
+        }else{
+            String widget_title =musicList.get(playingMusicIndex).getTitle();
+            widgetRemoteViews.setTextViewText(R.id.widget_content, widget_title);//设置歌曲名
+            // widgetRemoteViews.setProgressBar(R.id.widget_progress, mediaPlayer.getDuration(), mediaPlayer.getCurrentPosition(), false);
 
-        if (musicList.get(playingMusicIndex).getImage() != null) {//如果音乐专辑图片存在
-            Bitmap bitmap = MusicIconLoader.getInstance().load(musicList.get(playingMusicIndex).getImage());
-            if(bitmap!=null){
-                widgetRemoteViews.setImageViewBitmap(R.id.widget_image, bitmap);
-            }else{
+            if (musicList.get(playingMusicIndex).getImage() != null) {//如果音乐专辑图片存在
+                Bitmap bitmap = MusicIconLoader.getInstance().load(musicList.get(playingMusicIndex).getImage());
+                if(bitmap!=null){
+                    widgetRemoteViews.setImageViewBitmap(R.id.widget_image, bitmap);
+                }else{
+                    widgetRemoteViews.setImageViewResource(R.id.widget_image, R.drawable.mp1);
+                }
+
+            } else {
                 widgetRemoteViews.setImageViewResource(R.id.widget_image, R.drawable.mp1);
             }
+            //进度
+            //执行更新精度条的线程
+            handler.post(runnable);
+            if (mediaPlayer.isPlaying()) {
+                widgetRemoteViews.setImageViewResource(R.id.widget_play, R.drawable.widget_pause_selector);
+            } else {
+                widgetRemoteViews.setImageViewResource(R.id.widget_play, R.drawable.widget_play_selector);
+            }
 
-        } else {
-            widgetRemoteViews.setImageViewResource(R.id.widget_image, R.drawable.mp1);
+            return true;
         }
-        //进度
-        //执行更新精度条的线程
-        handler.post(runnable);
-        if (mediaPlayer.isPlaying()) {
-            widgetRemoteViews.setImageViewResource(R.id.widget_play, R.drawable.widget_pause_selector);
-        } else {
-            widgetRemoteViews.setImageViewResource(R.id.widget_play, R.drawable.widget_play_selector);
-        }
+
     }
 
     private Notification  getmNotification(){
@@ -1012,7 +1017,9 @@ public final class MusicAidlService extends Service {
         final int NEXT_FLAG = 0x2;
         final int PREV_FLAG = 0x3;
         final  Context ForegroundContext=this;
-        initNotification();
+        if(!initNotification()){//如果初始化服务失败
+          return null;
+        }
         //设置前台服务的绑定事件
         Intent pauseIntent = new Intent(TOGGLEPAUSE_ACTION);
         //pauseIntent.putExtra("FLAG", PAUSE_FLAG);

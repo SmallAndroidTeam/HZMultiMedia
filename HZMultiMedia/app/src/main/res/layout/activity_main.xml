@@ -1,40 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.MainActivity"
-    android:background="@color/colorPrimary"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/loading_activity_background"
     android:orientation="vertical">
-    <LinearLayout
+    <FrameLayout
+        android:id="@+id/multimediaLayout"
+        android:layout_toLeftOf="@+id/selectButton"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal">
-      <Button
-
-        android:id="@+id/musicButton"
-        android:layout_width="wrap_content"
-        android:layout_height="100px"
-        android:text="@string/music"
-        android:textSize="30px"/>
-        <Button
-            android:id="@+id/videoButton"
-
+        android:layout_height="match_parent"
+      >
+    </FrameLayout>
+    <RelativeLayout
+        android:id="@+id/coveringLayer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+    >
+    </RelativeLayout>
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/musicButton"
             android:layout_width="wrap_content"
-            android:layout_height="100px"
-            android:text="@string/video"
-            android:textSize="30px"/>
-        <Button
+            android:layout_height="wrap_content"
+            android:src="@drawable/music_button"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="36px"
+            android:layout_marginBottom="350px"
+            app:fabSize="mini"
+            android:elevation="70px"
+            android:backgroundTint="#31bfcf"
+            app:rippleColor="#e7d161"
+            android:clickable="true"
+            />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/videoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/video_button"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="36px"
+            android:layout_marginBottom="250px"
+            app:fabSize="mini"
+            android:elevation="70px"
+            android:backgroundTint="#31bfcf"
+            app:rippleColor="#e7d161"
+            android:clickable="true"
+            />
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/galleryButton"
             android:layout_width="wrap_content"
-            android:layout_height="100px"
-            android:text="@string/gallery"
-            android:textSize="30px"/>
-    </LinearLayout>
-    <FrameLayout
-        android:id="@+id/indexFrameLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-</LinearLayout>
+            android:layout_height="wrap_content"
+            android:src="@drawable/gallery_button"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="36px"
+            android:layout_marginBottom="150px"
+            app:fabSize="mini"
+            android:elevation="70px"
+            android:backgroundTint="#31bfcf"
+            app:rippleColor="#e7d161"
+            android:clickable="true"
+            />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/selectButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/show_button"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="20px"
+            app:fabSize="normal"
+            android:elevation="70px"
+            android:backgroundTint="#31bfcf"
+            app:rippleColor="#e7d161"
+            android:clickable="true"
+            />
+
+
+</RelativeLayout>

@@ -4,8 +4,8 @@
     android:layout_height="match_parent"
     android:descendantFocusability="blocksDescendants">
     <of.media.hz.ui.AlwaysMarqueeTextView
-        android:layout_gravity="center_horizontal"
-        android:gravity="center_horizontal"
+        android:layout_gravity="center"
+        android:gravity="center"
         android:id="@+id/oneLineLyric"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

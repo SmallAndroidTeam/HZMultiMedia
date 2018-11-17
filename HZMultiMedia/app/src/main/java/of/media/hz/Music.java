@@ -39,15 +39,15 @@ public class Music implements Parcelable{
 
 
 	protected Music(Parcel in) {
-		id = in.readInt();
-		title = in.readString();
-		uri = in.readString();
-		length = in.readInt();
-		image = in.readString();
-		artist = in.readString();
-		lrcpath = in.readString();
-		Album=in.readString();
-		duration=in.readLong();
+        this.id = in.readInt();
+        this.title = in.readString();
+        this.uri = in.readString();
+        this.length = in.readInt();
+        this.image = in.readString();
+        this.artist = in.readString();
+        this.lrcpath = in.readString();
+        this.Album=in.readString();
+        this.duration=in.readLong();
 	}
 	public static final Creator<Music> CREATOR = new Creator<Music>() {
 		@Override

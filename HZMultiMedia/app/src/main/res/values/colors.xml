@@ -7,4 +7,6 @@
     <color name="textNoSelect">#978484</color>
     <color name="splitLine">#0df9ca</color>
     <color name="seeKbarStartColor">#0e28ce</color>
+    <color name="dialog">#ffff</color>
+    <color name="widget_background_color">#a0000000</color>
 </resources>

@@ -67,7 +67,9 @@ public class LryicAdapter  extends BaseAdapter{
         }else{
             viewHolder= (ViewHolder) view.getTag();
         }
-        viewHolder.oneLineLyric.setText(mLrcs.get(i));
+        if(i<mLrcs.size()){
+            viewHolder.oneLineLyric.setText(mLrcs.get(i));
+        }
         if(index==-1){
             viewHolder.oneLineLyric.setTextColor(viewGroup.getContext().getResources().getColor(R.color.textNoSelect));
         }else if(i==index){

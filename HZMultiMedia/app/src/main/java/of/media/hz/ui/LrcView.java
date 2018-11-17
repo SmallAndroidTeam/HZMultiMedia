@@ -64,7 +64,7 @@ public class LrcView extends View {
 	private Bitmap mBackground;
 	
 	private Scroller mScroller;
-	public static float defaultTextSize=50.0f;
+	public static float defaultTextSize=40;
 	public static float defaultDividerHeight=20;
 
 	public LrcView(Context context, AttributeSet attrs) {
@@ -255,8 +255,10 @@ public class LrcView extends View {
 	// 设置lrc的路径
 	public void setLrcPath(final  String path) {
 		reset();
+		if(path==null){
+			return;
+		}
 		File file = new File(path);
-		
 		if (!file.exists()) {
 			if(path.indexOf("http")!=-1){//是网络歌词路径
 			  new Thread(new Runnable() {

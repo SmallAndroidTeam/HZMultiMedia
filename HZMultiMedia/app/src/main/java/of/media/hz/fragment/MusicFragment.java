@@ -1,15 +1,27 @@
 package of.media.hz.fragment;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.transition.Fade;
+import android.transition.Slide;
+import android.transition.TransitionManager;
+import android.transition.TransitionSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import java.util.Objects;
 
@@ -26,99 +38,116 @@ import of.media.hz.musicFragment.UsbMusicFragment;
  */
 public class MusicFragment  extends Fragment implements View.OnClickListener {
 
-    private Button localRadioButton;
-    private Button onlineRadioButton;
-    private Button localMusicButton;
-    private Button bluetoothMusicButton;
-    private Button usbMusicButton;
-    private Button onlineMusicButton;
+
     private Fragment localRadioFragment,onlineRadioFragment,localMusicFragment,bluetoothMusicFragment,
     usbMusicFragment,onlineMusicFragment;
+    private LinearLayout localMusicLayout;
+    private LinearLayout bluetoothMusicLayout;
+    private LinearLayout musicLayout;
+    private RelativeLayout musicCoveringLayer;
+    private LinearLayout menuLayout;
+    private  Dialog musicListDialog;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.music_fragment_item,container,false);
         initView(view);
         initEvents();
-        setInitFragement();//设置默认显示的fragemnt;
+        setInitFragment();//设置默认显示的fragemnt;
         return view;
     }
 
-    private void setInitFragement() {
-        localMusicButton.callOnClick();
+    private void setInitFragment() {
+        final FragmentManager fragmentManager= Objects.requireNonNull(getActivity()).getSupportFragmentManager();
+        final  FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
+        hideAllFragement(fragmentTransaction);
+        if(localMusicFragment==null){
+            localMusicFragment=new LocalMusicFragment();
+            fragmentTransaction.add(R.id.musicFrameLayout,localMusicFragment);
+        }else{
+            fragmentTransaction.show(localMusicFragment);
+        }
+        fragmentTransaction.commit();
     }
 
     private void initEvents() {
-        localRadioButton.setOnClickListener(this);
-        onlineRadioButton.setOnClickListener(this);
-        localMusicButton.setOnClickListener(this);
-        bluetoothMusicButton.setOnClickListener(this);
-        usbMusicButton.setOnClickListener(this);
-        onlineMusicButton.setOnClickListener(this);
+        localMusicLayout.setOnClickListener(this);
+        bluetoothMusicLayout.setOnClickListener(this);
+        menuLayout.setOnClickListener(this);
+        musicCoveringLayer.setOnClickListener(this);
     }
 
     private void initView(View view) {
-        localRadioButton = view.findViewById(R.id.localRadioButton);
-        onlineRadioButton = view.findViewById(R.id.onlineRadioButton);
-        localMusicButton = view.findViewById(R.id.localMusicButton);
-        bluetoothMusicButton = view.findViewById(R.id.bluetoothMusicButton);
-        usbMusicButton = view.findViewById(R.id.usbMusicButton);
-        onlineMusicButton = view.findViewById(R.id.onlineMusicButton);
+        localMusicLayout = view.findViewById(R.id.localMusicLayout);
+        bluetoothMusicLayout = view.findViewById(R.id.bluetoothMusicLayout);
+        musicLayout = view.findViewById(R.id.musicLayout);
+        menuLayout = view.findViewById(R.id.menuLayout);
+        musicCoveringLayer = view.findViewById(R.id.musicCoveringLayer);
     }
 
+    private Dialog  musicListDialog(){
+        View view=LayoutInflater.from(getContext()).inflate(R.layout.music_dialog,null);
+        Dialog dialog=new Dialog(Objects.requireNonNull(getActivity()),R.style.MyDialog);
+        Window window=dialog.getWindow();
+        window.setGravity(Gravity.BOTTOM);
+        window.setContentView(view);
+        window.setWindowAnimations(R.style.dialogAnimation);
+
+        WindowManager.LayoutParams lp=window.getAttributes();
+        lp.width=getResources().getDisplayMetrics().widthPixels/2;
+        lp.height=getResources().getDisplayMetrics().heightPixels/2;
+        window.setAttributes(lp);
+        return dialog;
+
+    }
     @Override
     public void onClick(View view) {
         final FragmentManager fragmentManager= Objects.requireNonNull(getActivity()).getSupportFragmentManager();
         final  FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
-        hideAllFragement(fragmentTransaction);
        switch (view.getId()){
-           case R.id.localRadioButton:
-               if(localRadioFragment==null){
-                   localRadioFragment=new LocalRadioFragment();
-                    fragmentTransaction.add(R.id.musicFrameLayout,localRadioFragment);
-               }else{
-                   fragmentTransaction.show(localRadioFragment);
-               }
-               break;
-           case R.id.onlineRadioButton:
-               if(onlineRadioFragment==null){
-                   onlineRadioFragment=new OnlineRadioFragment();
-                   fragmentTransaction.add(R.id.musicFrameLayout,onlineRadioFragment);
-               }else{
-                   fragmentTransaction.show(onlineRadioFragment);
-               }
-               break;
-           case R.id.localMusicButton:
+           case R.id.localMusicLayout:
+               hideAllFragement(fragmentTransaction);
                if(localMusicFragment==null){
                    localMusicFragment=new LocalMusicFragment();
                    fragmentTransaction.add(R.id.musicFrameLayout,localMusicFragment);
                }else{
                    fragmentTransaction.show(localMusicFragment);
                }
+               if(musicListDialog==null)
+               musicListDialog=musicListDialog();
+               musicListDialog.show();
                break;
-           case R.id.bluetoothMusicButton:
-               if(bluetoothMusicFragment==null){
-                   bluetoothMusicFragment=new BluetoothMusicFragment();
-                   fragmentTransaction.add(R.id.musicFrameLayout,bluetoothMusicFragment);
+           case R.id.bluetoothMusicLayout:
+               hideAllFragement(fragmentTransaction);
+               if(localMusicFragment==null){
+                   localMusicFragment=new LocalMusicFragment();
+                   fragmentTransaction.add(R.id.musicFrameLayout,localMusicFragment);
                }else{
-                   fragmentTransaction.show(bluetoothMusicFragment);
+                   fragmentTransaction.show(localMusicFragment);
                }
+               if(musicListDialog==null)
+                   musicListDialog=musicListDialog();
+               musicListDialog.show();
                break;
-           case R.id.usbMusicButton:
-               if(usbMusicFragment==null){
-                   usbMusicFragment=new UsbMusicFragment();
-                   fragmentTransaction.add(R.id.musicFrameLayout,usbMusicFragment);
-               }else{
-                   fragmentTransaction.show(usbMusicFragment);
-               }
+           case R.id.menuLayout:
+               Slide slide=new Slide(Gravity.LEFT);
+               TransitionSet transitionSet=new TransitionSet();
+               transitionSet.addTransition(slide).addTransition(new Fade());
+               TransitionManager.beginDelayedTransition(musicLayout,transitionSet);
+               TransitionManager.beginDelayedTransition(menuLayout,transitionSet);
+                   musicLayout.setVisibility(View.VISIBLE);
+               menuLayout.setVisibility(View.INVISIBLE);
+               musicCoveringLayer.setVisibility(View.VISIBLE);
                break;
-           case R.id.onlineMusicButton:
-               if(onlineMusicFragment==null){
-                   onlineMusicFragment=new OnlineMusicFragment();
-                   fragmentTransaction.add(R.id.musicFrameLayout,onlineMusicFragment);
-               }else{
-                   fragmentTransaction.show(onlineMusicFragment);
-               }
+           case R.id.musicCoveringLayer:
+               Slide slide1=new Slide(Gravity.RIGHT);
+               TransitionSet transitionSet1=new TransitionSet();
+               transitionSet1.addTransition(slide1).addTransition(new Fade());
+               TransitionManager.beginDelayedTransition(menuLayout,transitionSet1);
+               TransitionManager.beginDelayedTransition(musicLayout,transitionSet1);
+               musicLayout.setVisibility(View.INVISIBLE);
+               menuLayout.setVisibility(View.VISIBLE);
+               musicCoveringLayer.setVisibility(View.GONE);
                break;
            default:
                break;
@@ -150,4 +179,6 @@ public class MusicFragment  extends Fragment implements View.OnClickListener {
             fragmentTransaction.hide(onlineMusicFragment);
         }
     }
+
+
 }

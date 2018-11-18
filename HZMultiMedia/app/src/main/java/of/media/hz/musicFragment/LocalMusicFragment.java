@@ -260,7 +260,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
                 }
 
             }
-        },100,100);
+        },100,300);
 
          mhandler.sendEmptyMessage(UPDATE_PROGRESS);
 
@@ -311,7 +311,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
         musicLyric.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                musicLyric.setVisibility(View.GONE);
+                musicLyric.setVisibility(View.INVISIBLE);
                 musicAlbum.setVisibility(View.VISIBLE);
             }
         });
@@ -324,7 +324,7 @@ public class LocalMusicFragment extends Fragment implements View.OnClickListener
             case R.id.musicAlbum://点击专辑图片显示歌词或者暂无歌词
                 Fade fade=new Fade();
                 TransitionManager.beginDelayedTransition((ViewGroup) musicAlbum.getParent(),fade);
-                musicAlbum.setVisibility(View.GONE);
+                musicAlbum.setVisibility(View.INVISIBLE);
                 musicLyric.setVisibility(View.VISIBLE);
                 break;
             case R.id.playImageView://切换播放模式

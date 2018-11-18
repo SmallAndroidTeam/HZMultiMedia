@@ -48,6 +48,7 @@ import of.media.hz.info.MusicName;
 import of.media.hz.musicFragment.LocalMusicFragment;
 import of.media.hz.toast.OneToast;
 import of.media.hz.until.MusicIconLoader;
+import of.media.hz.until.MusicUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -65,6 +66,7 @@ public final class MusicService extends Service {
     private static List<Music> musicList=new ArrayList<>();//歌曲列表
     private  static int currentPosition=-1;//当前的播放下标
     private static Control mControl;
+    private  static  UpdateMusicList updateMusicList;
     private static  List<String> mLrcs = new ArrayList<String>(); // 存放歌词
     private  static  List<Long> mTimes = new ArrayList<Long>(); // 存放时间
     public final static String[] playMode=new String[]{"顺序播放","列表循环","单曲循环","随机播放"};//播放模式
@@ -75,6 +77,7 @@ public final class MusicService extends Service {
     private   Notification mNotification;
     private  final int NotificationId=1000;
     private  boolean ForegroundIsExist=false;//判断前台服务是否存在
+    public final  static String UPDATE_FLAG="update_play_boundary_ui";//更新播放界面的UI信息的intent中的Key值
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -94,6 +97,8 @@ public final class MusicService extends Service {
         }
     };
 
+
+
     //获取进程名
     public  String getProcessName() {
         try {
@@ -106,6 +111,16 @@ public final class MusicService extends Service {
             e.printStackTrace();
             return null;
         }
+    }
+
+
+    /**
+     * 获取本地的音乐列表
+     * @return
+     */
+    public static List<Music> getLocalMusicList(){
+        MusicUtils.initMusicList();
+        return MusicUtils.sMusicList;
     }
 
 
@@ -141,6 +156,10 @@ public final class MusicService extends Service {
 
     public static void setmControl(Control mControl) {
         MusicService.mControl = mControl;
+    }
+
+    public static void setUpdateMusicList(UpdateMusicList updateMusicList) {
+        MusicService.updateMusicList = updateMusicList;
     }
 
     //初始化服务
@@ -456,12 +475,19 @@ public final class MusicService extends Service {
 
     /**
      * 开始播放音乐
+     * @param stringExtra
      */
-     private void startMusic(){
+     private void startMusic(String stringExtra){
         if(isSatisfyPlayCondition()){
             mMediaPlayer.start();
             if(mControl!=null){
                 mControl.playButton(1);
+                if(stringExtra!=null&&stringExtra.contentEquals(UPDATE_FLAG)){//需要更新UI 界面
+                    mControl.updateUI();
+                }
+            }
+             if(updateMusicList!=null){
+                    updateMusicList.updateUI(currentPosition);
             }
             NotificationChange(TOGGLE_ACTION);
         }
@@ -475,6 +501,9 @@ public final class MusicService extends Service {
              mMediaPlayer.pause();
              if(mControl!=null){
                  mControl.playButton(0);
+             }
+             if(updateMusicList!=null){
+                 updateMusicList.updateUI(currentPosition);
              }
              NotificationChange(TOGGLE_ACTION);
          }
@@ -496,7 +525,9 @@ public final class MusicService extends Service {
             if(mControl!=null){
                 mControl.playButton(0);
             }
-
+            if(updateMusicList!=null){
+                updateMusicList.updateUI(currentPosition);
+            }
             ForegroundIsExist=false;
             mNotification=null;
             stopForeground(true);//停止前台服务
@@ -529,7 +560,9 @@ public final class MusicService extends Service {
                         mControl.playButton(1);
                         mControl.updateUI();
                     }
-
+                    if(updateMusicList!=null){
+                        updateMusicList.updateUI(currentPosition);
+                    }
                     NotificationChange(NEXT_ACTION);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -590,6 +623,9 @@ public final class MusicService extends Service {
                          mControl.playButton(1);
                          mControl.updateUI();
                      }
+                     if(updateMusicList!=null){
+                         updateMusicList.updateUI(currentPosition);
+                     }
                      NotificationChange(PREVIOUS_ACTION);
                  } catch (IOException e) {
                      e.printStackTrace();
@@ -629,6 +665,9 @@ public final class MusicService extends Service {
                           if(mControl!=null){
                               mControl.playButton(1);
                               mControl.updateUI();
+                          }
+                          if(updateMusicList!=null){
+                              updateMusicList.updateUI(currentPosition);
                           }
                           NotificationChange(NEXT_ACTION);
                       } catch (IOException e) {
@@ -891,12 +930,11 @@ public final class MusicService extends Service {
        }
        String action=intent.getAction();
         if(isSatisfyPlayCondition()){
-
            if(action.contentEquals(TOGGLE_ACTION)){//切换播放状态
                if(isPlaying()){
                    pauseMusic();
                }else{
-                   startMusic();
+                   startMusic(intent.getStringExtra(UPDATE_FLAG));
                }
            }else if(action.contentEquals(STOP_ACTION)){//停止播放
                stopMusic();
@@ -1104,10 +1142,14 @@ public final class MusicService extends Service {
         }
     }
 
-    public interface Control{
+    public interface Control{//用于更新播放界面信息的接口
         void playButton(int index);//改变播放按钮的形状(0暂停，1,播放）
         void updateUI();//更新播放界面的信息
         void updateLoveButton(int musicPosition,int type);//改变收藏按钮的形状（type:0没收藏，1收藏)(muscicPostion:添加收藏的音乐下标)
     }
+    public interface UpdateMusicList{//用于更新音乐列表显示当前正在播放的音乐的那一行信息
+        void updateUI(int index);//更新音乐列表，index为当前播放的音乐下标
+    }
+
 
 }

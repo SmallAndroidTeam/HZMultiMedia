@@ -1,6 +1,7 @@
 package of.media.hz.fragment;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,21 +18,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import java.util.List;
 import java.util.Objects;
 
+import of.media.hz.Music;
 import of.media.hz.R;
-import of.media.hz.musicFragment.BluetoothMusicFragment;
+import of.media.hz.adapter.LocalMusicAdapter;
 import of.media.hz.musicFragment.LocalMusicFragment;
-import of.media.hz.musicFragment.LocalRadioFragment;
-import of.media.hz.musicFragment.OnlineMusicFragment;
-import of.media.hz.musicFragment.OnlineRadioFragment;
-import of.media.hz.musicFragment.UsbMusicFragment;
+import of.media.hz.services.MusicService;
+import of.media.hz.toast.OneToast;
 
 /**
  * Created by MR.XIE on 2018/11/6.
@@ -46,7 +47,11 @@ public class MusicFragment  extends Fragment implements View.OnClickListener {
     private LinearLayout musicLayout;
     private RelativeLayout musicCoveringLayer;
     private LinearLayout menuLayout;
-    private  Dialog musicListDialog;
+    private  Dialog localMusicListDialog;//本地音乐列表弹出框
+    private TextView localMusicTitle;//本地音乐列表弹出框的标题
+    private ListView localMusicList;//本地音乐列表弹出框的列表显示
+    private LocalMusicAdapter localMusicAdapter;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -85,20 +90,71 @@ public class MusicFragment  extends Fragment implements View.OnClickListener {
         musicCoveringLayer = view.findViewById(R.id.musicCoveringLayer);
     }
 
-    private Dialog  musicListDialog(){
-        View view=LayoutInflater.from(getContext()).inflate(R.layout.music_dialog,null);
+
+
+    private Dialog  localMusicListDialog(){
+        View view=LayoutInflater.from(getContext()).inflate(R.layout.local_music_dialog,null);
+        localMusicTitle = view.findViewById(R.id.localMusicTitle);
+        localMusicList = view.findViewById(R.id.localMusicList);
+        localMusicTitle.setText(getResources().getString(R.string.localMusicTitle));
+        localMusicAdapter=new LocalMusicAdapter();
+        List<Music> localMusic=MusicService.getLocalMusicList();
+        if(localMusic.size()==0){//无音乐
+
+        }else{
+            localMusicAdapter.setMusicList(localMusic);
+        }
+        localMusicList.setAdapter(localMusicAdapter);
+        localMusicTitle.setText(localMusicTitle.getText()+"("+localMusic.size()+"首)");
+       //本地音乐弹窗中的列表点击事件
+            localMusicList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                     if(localMusicAdapter.getPlayIndex()==i){//如果点击二次正在相同的播放的音乐，就会隐藏弹出框
+                       if(localMusicListDialog!=null){
+                           localMusicListDialog.hide();
+                       }
+                     }else{
+                         Intent intent=new Intent(getActivity(),MusicService.class);
+                         intent.setAction(MusicService.STOP_ACTION);
+                         Objects.requireNonNull(getActivity()).startService(intent);
+                         if(MusicService.initMusicService(localMusicAdapter.getMusicList(),i)){//如果初始化音乐服务成功
+                             Intent intent1=new Intent(getActivity(),MusicService.class);
+                             intent1.setAction(MusicService.TOGGLE_ACTION);
+                             intent1.putExtra(MusicService.UPDATE_FLAG,MusicService.UPDATE_FLAG);//添加更新UI界面的key值
+                             Objects.requireNonNull(getActivity()).startService(intent1);
+                             localMusicAdapter.setPlayIndex(i);
+                             localMusicAdapter.notifyDataSetChanged();
+                         }else{
+                             Intent intent2=new Intent(getActivity(),MusicService.class);
+                             intent2.setAction(MusicService.TOGGLE_ACTION);
+                             Objects.requireNonNull(getActivity()).startService(intent2);
+                         }
+
+                     }
+                }
+            });
+        MusicService.setUpdateMusicList(new MusicService.UpdateMusicList() {//用于更新音乐列表显示当前播放的音乐
+            @Override
+            public void updateUI(int index) {
+               if(localMusicAdapter!=null&&localMusicAdapter.getCount()>index&&index>=0){
+                   localMusicAdapter.setPlayIndex(index);
+                   localMusicAdapter.notifyDataSetChanged();
+                  // localMusicList.smoothScrollToPositionFromTop(index,140,500);
+               }
+            }
+        });
         Dialog dialog=new Dialog(Objects.requireNonNull(getActivity()),R.style.MyDialog);
         Window window=dialog.getWindow();
         window.setGravity(Gravity.BOTTOM);
         window.setContentView(view);
         window.setWindowAnimations(R.style.dialogAnimation);
-
         WindowManager.LayoutParams lp=window.getAttributes();
-        lp.width=getResources().getDisplayMetrics().widthPixels/2;
+        lp.width= (int) (getResources().getDisplayMetrics().widthPixels/1.5);
         lp.height=getResources().getDisplayMetrics().heightPixels/2;
         window.setAttributes(lp);
-        return dialog;
 
+        return dialog;
     }
     @Override
     public void onClick(View view) {
@@ -113,9 +169,9 @@ public class MusicFragment  extends Fragment implements View.OnClickListener {
                }else{
                    fragmentTransaction.show(localMusicFragment);
                }
-               if(musicListDialog==null)
-               musicListDialog=musicListDialog();
-               musicListDialog.show();
+               if(localMusicListDialog==null)
+                   localMusicListDialog=localMusicListDialog();
+               localMusicListDialog.show();
                break;
            case R.id.bluetoothMusicLayout:
                hideAllFragement(fragmentTransaction);
@@ -125,11 +181,9 @@ public class MusicFragment  extends Fragment implements View.OnClickListener {
                }else{
                    fragmentTransaction.show(localMusicFragment);
                }
-               if(musicListDialog==null)
-                   musicListDialog=musicListDialog();
-               musicListDialog.show();
+               OneToast.showMessage(getContext(),"蓝牙音乐");
                break;
-           case R.id.menuLayout:
+           case R.id.menuLayout://点击菜单按钮
                Slide slide=new Slide(Gravity.LEFT);
                TransitionSet transitionSet=new TransitionSet();
                transitionSet.addTransition(slide).addTransition(new Fade());
@@ -139,7 +193,7 @@ public class MusicFragment  extends Fragment implements View.OnClickListener {
                menuLayout.setVisibility(View.INVISIBLE);
                musicCoveringLayer.setVisibility(View.VISIBLE);
                break;
-           case R.id.musicCoveringLayer:
+           case R.id.musicCoveringLayer://遮罩层
                Slide slide1=new Slide(Gravity.RIGHT);
                TransitionSet transitionSet1=new TransitionSet();
                transitionSet1.addTransition(slide1).addTransition(new Fade());

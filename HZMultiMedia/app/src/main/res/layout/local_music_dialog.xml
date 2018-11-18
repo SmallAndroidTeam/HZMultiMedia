@@ -3,13 +3,19 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
     <TextView
+        android:id="@+id/localMusicTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="音乐列表"/>
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:text="音乐列表"
+        android:padding="5px"
+        />
 <ListView
+    android:id="@+id/localMusicList"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:divider="@null">
 </ListView>
-
 </LinearLayout>

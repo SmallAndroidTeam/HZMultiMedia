@@ -37,20 +37,22 @@
         android:focusable="true"
         android:textStyle="bold"
         android:textColor="@android:color/white"/>
-    <LinearLayout
+    <RelativeLayout
         android:layout_marginTop="20px"
-        android:layout_width="290px"
+        android:layout_width="wrap_content"
         android:layout_height="290px"
-        android:layout_gravity="center_horizontal"
-        android:orientation="vertical"
+        android:paddingLeft="50px"
+        android:paddingRight="50px"
         >
         <of.media.hz.ui.RoundImageView
             android:id="@+id/musicAlbum"
-            android:layout_width="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_width="290px"
             android:layout_height="match_parent"
             android:src="@drawable/mp1"/>
         <ListView
-            android:visibility="gone"
+            android:visibility="invisible"
+            android:layout_centerInParent="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/musicLyric"
@@ -66,7 +68,7 @@
             <!--android:textSize="30px"-->
             <!--android:textColor="@color/textNoSelect"-->
             <!--android:text="@string/noLyric"/>-->
-    </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

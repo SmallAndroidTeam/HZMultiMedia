@@ -11,4 +11,5 @@
     <color name="widget_background_color">#a0000000</color>
     <color name="localMusicTextSelect">#3f4ca1</color>
     <color name="localMusicTextNoSelect">#a0000000</color>
+    <color name="RefreshProgressBackground">#FFF</color>
 </resources>

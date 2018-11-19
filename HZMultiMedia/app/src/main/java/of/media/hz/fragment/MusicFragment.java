@@ -1,13 +1,17 @@
 package of.media.hz.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.TransitionManager;
@@ -21,6 +25,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Magnifier;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -51,6 +56,45 @@ public class MusicFragment  extends Fragment implements View.OnClickListener {
     private TextView localMusicTitle;//本地音乐列表弹出框的标题
     private ListView localMusicList;//本地音乐列表弹出框的列表显示
     private LocalMusicAdapter localMusicAdapter;
+    public static final int UPDATE_LOCAL_MUSIC_LIST=0;//更新本地列表
+    @SuppressLint("HandlerLeak")
+    private Handler mhandler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+          switch (msg.what){
+              case UPDATE_LOCAL_MUSIC_LIST:
+                  if(msg.obj!=null){
+                     int type= (int) msg.obj;
+                     if(type==0){//点击列表而导致刷新
+                         if(localMusicAdapter!=null){
+                             localMusicAdapter.notifyDataSetChanged();
+                         }
+                     }else if(type==1){//下拉刷新
+                         if(localMusicAdapter!=null){
+                             if(localMusicAdapter.getCount()==0){
+                                // localMusicList.setVisibility(View.GONE);
+                                 noLocalMusicTip.setVisibility(View.VISIBLE);
+                             }else{
+                                 localMusicList.setVisibility(View.VISIBLE);
+                                // noLocalMusicTip.setVisibility(View.GONE);
+                             }
+                             localMusicTitle.setText(getResources().getString(R.string.localMusicTitle)+"("+localMusicAdapter.getCount()+"首)");
+                             localMusicAdapter.notifyDataSetChanged();
+                         }
+                         localMusicListRefresh.setRefreshing(false);
+                         OneToast.showMessage(getContext(),"刷新成功");
+                     }
+
+                  }
+
+                  break;
+                  default:
+                      break;
+          }
+        }
+    };
+    private SwipeRefreshLayout localMusicListRefresh;
+    private TextView noLocalMusicTip;
 
     @Nullable
     @Override
@@ -96,16 +140,23 @@ public class MusicFragment  extends Fragment implements View.OnClickListener {
         View view=LayoutInflater.from(getContext()).inflate(R.layout.local_music_dialog,null);
         localMusicTitle = view.findViewById(R.id.localMusicTitle);
         localMusicList = view.findViewById(R.id.localMusicList);
-        localMusicTitle.setText(getResources().getString(R.string.localMusicTitle));
         localMusicAdapter=new LocalMusicAdapter();
+        localMusicListRefresh = view.findViewById(R.id.localMusicListRefresh);
+        noLocalMusicTip = view.findViewById(R.id.noLocalMusicTip);
+        localMusicListRefresh.setProgressBackgroundColorSchemeResource(R.color.RefreshProgressBackground);
+        localMusicListRefresh.setColorSchemeResources(android.R.color.holo_blue_bright,android.R.color.holo_green_light,android.R.color.holo_orange_light,android.R.color.holo_red_light);
+
         List<Music> localMusic=MusicService.getLocalMusicList();
         if(localMusic.size()==0){//无音乐
-
+            localMusicList.setVisibility(View.GONE);
+            noLocalMusicTip.setVisibility(View.VISIBLE);
         }else{
+            localMusicList.setVisibility(View.VISIBLE);
             localMusicAdapter.setMusicList(localMusic);
+            noLocalMusicTip.setVisibility(View.GONE);
         }
         localMusicList.setAdapter(localMusicAdapter);
-        localMusicTitle.setText(localMusicTitle.getText()+"("+localMusic.size()+"首)");
+        localMusicTitle.setText(getResources().getString(R.string.localMusicTitle)+"("+localMusic.size()+"首)");
        //本地音乐弹窗中的列表点击事件
             localMusicList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -134,16 +185,60 @@ public class MusicFragment  extends Fragment implements View.OnClickListener {
                      }
                 }
             });
-        MusicService.setUpdateMusicList(new MusicService.UpdateMusicList() {//用于更新音乐列表显示当前播放的音乐
+      //下拉刷新
+        localMusicListRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {//更新本地列表
             @Override
-            public void updateUI(int index) {
-               if(localMusicAdapter!=null&&localMusicAdapter.getCount()>index&&index>=0){
-                   localMusicAdapter.setPlayIndex(index);
-                   localMusicAdapter.notifyDataSetChanged();
-                  // localMusicList.smoothScrollToPositionFromTop(index,140,500);
-               }
+            public void onRefresh() {
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized (this){
+                            if(localMusicAdapter!=null){
+                                localMusicAdapter.setMusicList(MusicService.getLocalMusicList());
+                                Message message=new Message();
+                                message.what=UPDATE_LOCAL_MUSIC_LIST;
+                                message.obj=1;
+                                mhandler.sendMessageDelayed(message,500);
+                            }
+                        }
+                    }
+                }).start();
             }
         });
+
+        noLocalMusicTip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+
+        MusicService.setUpdateMusicList(new MusicService.UpdateMusicList() {//用于更新音乐列表显示当前播放的音乐
+            @Override
+            public void updateUI(final int index) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized (this){
+                            //如果适配器中的音乐列表包含服务器中的音乐列表,且对应index下标的音乐信息的地址相同
+                            if(localMusicAdapter!=null&&localMusicAdapter.getCount()>index&&index>=0&&localMusicAdapter.getMusicList().containsAll(MusicService.getCurrentMusicList())
+                                    &&localMusicAdapter.getMusicList().get(index).toString().contentEquals(MusicService.getCurrentMusicList().get(index).toString())){
+                                localMusicAdapter.setPlayIndex(index);
+                                mhandler.obtainMessage(UPDATE_LOCAL_MUSIC_LIST,0).sendToTarget();
+                                // localMusicList.smoothScrollToPositionFromTop(index,140,500);
+                            }else{
+                                localMusicAdapter.setPlayIndex(-1);
+                                mhandler.obtainMessage(UPDATE_LOCAL_MUSIC_LIST,0).sendToTarget();
+                            }
+                        }
+                    }
+                }).start();
+
+            }
+        });
+
         Dialog dialog=new Dialog(Objects.requireNonNull(getActivity()),R.style.MyDialog);
         Window window=dialog.getWindow();
         window.setGravity(Gravity.BOTTOM);

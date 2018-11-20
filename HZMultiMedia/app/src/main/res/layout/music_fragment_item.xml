@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="match_parent"
+    android:layout_height="match_parent"
+   >
+    <FrameLayout
+        android:layout_toRightOf="@+id/musicButtonsLayout"
+        android:id="@+id/musicFrameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <RelativeLayout
+        android:id="@+id/musicCoveringLayer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        />
+<RelativeLayout
+    android:id="@+id/musicButtonsLayout"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:paddingBottom="35px"
+    android:paddingTop="35px"
+    android:paddingLeft="30px"
+
+    >
+    <LinearLayout
+        android:id="@+id/musicLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="invisible"
+      >
+        <LinearLayout
+             android:id="@+id/localMusicLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="60px"
+            android:gravity="center_vertical"
+            android:layout_marginTop="20px"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="60px"
+                android:layout_height="60px"
+                android:src="@drawable/local"/>
+            <TextView
+                android:layout_marginLeft="10px"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="本地音乐"
+                android:textSize="10sp"
+                android:textColor="@color/textSelect"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_marginTop="20px"
+            android:id="@+id/bluetoothMusicLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="60px"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="60px"
+                android:layout_height="60px"
+                android:src="@drawable/bluebooth"/>
+            <TextView
+                android:layout_marginLeft="10px"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="蓝牙音乐"
+                android:textSize="10sp"
+                android:textColor="@color/textSelect"/>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/menuLayout"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_width="60px"
+        android:layout_height="60px">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/menu_button"/>
+    </LinearLayout>
+
+</RelativeLayout>
+
+
+</RelativeLayout>

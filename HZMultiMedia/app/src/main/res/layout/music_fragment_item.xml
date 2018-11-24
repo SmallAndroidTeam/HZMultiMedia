@@ -69,6 +69,25 @@
                 android:textSize="10sp"
                 android:textColor="@color/textSelect"/>
         </LinearLayout>
+        <LinearLayout
+            android:layout_marginTop="20px"
+            android:id="@+id/ll_usbmusicLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="60px"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="60px"
+                android:layout_height="60px"
+                android:src="@drawable/usb"/>
+            <TextView
+                android:layout_marginLeft="10px"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="usb音乐"
+                android:textSize="10sp"
+                android:textColor="@color/textSelect"/>
+        </LinearLayout>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/menuLayout"

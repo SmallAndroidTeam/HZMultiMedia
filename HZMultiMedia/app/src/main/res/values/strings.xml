@@ -11,4 +11,5 @@
     <string name="cancel_love_music">已取消喜欢</string>
     <string name="localMusicTitle">本地音乐列表</string>
     <string name="noLocalMusicTip">当前无音乐，可下拉刷新</string>
+    <string name="str_scanning">正在扫描</string>
 </resources>

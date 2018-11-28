@@ -46,6 +46,15 @@
             android:enabled="true"
             android:exported="true"></service>
 
+        <service android:name=".services.UsbMonitorService"
+            android:singleUser="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="of.media.hz.usb" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
         <receiver android:name=".widget.MusicWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -58,6 +67,12 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/muisc_widget_provider_info" />
+        </receiver>
+
+        <receiver android:name=".receiver.BootCompleteReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
     </application>
 
